@@ -1,0 +1,7 @@
+/**
+
+	\mainpage
+	\section notconv_sec Notational conventions
+	Unless otherwise marked, an **octet** is an UTF-8 octet, and a **codepoint** is a Unicode codepoint.
+
+*/

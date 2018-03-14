@@ -1,10 +1,12 @@
 cmake_minimum_required (VERSION 3.1.0)
 set (CMAKE_CXX_STANDARD 11)
-project (utf8_string_test)
+project (utf8_saker_tests)
 
 set (UTF8_STRING_DIR ../src)
-set (SOURCES main.cpp ${UTF8_STRING_DIR}/utf8.hpp)
+set (SOURCES tests_rope.cpp)
 
-add_executable (utf8_string_test ${SOURCES})
-target_include_directories (utf8_string_test PRIVATE ${UTF8_STRING_DIR})
+add_library (main OBJECT main.cpp)
+
+add_executable (utf8_saker_tests ${SOURCES} $<TARGET_OBJECTS:main>)
+target_include_directories (utf8_saker_tests PRIVATE ${UTF8_STRING_DIR})
 configure_file (dummy ${CMAKE_BINARY_DIR}/dummy COPYONLY)
