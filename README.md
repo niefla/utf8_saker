@@ -1,5 +1,7 @@
 # utf8_saker
 
+[![Build Status](https://travis-ci.org/niefla/utf8_saker.svg?branch=develop)](https://travis-ci.org/niefla/utf8_saker)
+
 UTF-8 things made with C++11.
 
 ## how to use
