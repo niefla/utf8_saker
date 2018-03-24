@@ -13,3 +13,4 @@ script:
 - cd build
 - cmake ..
 - make
+- ./utf8_saker_tests
