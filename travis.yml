@@ -1,0 +1,13 @@
+compiler:
+    gcc
+
+language:
+    cpp
+
+install:
+    true
+
+script:
+- cd test/build
+- cmake ..
+- make

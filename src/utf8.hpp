@@ -973,16 +973,27 @@ namespace utf8 {
 			return *this;
 		}
 
-		//	get_allocator
-		//	http://en.cppreference.com/w/cpp/string/basic_string/get_allocator
-
+		/**
+		 *	\name get_allocator
+		 *	@{
+		 *	\fn allocator_type utf8::rope::get_allocator() const
+		 *	Returns the allocator associated with the rope. Corresponds to [`std::basic_string::get_allocator`](http://en.cppreference.com/w/cpp/string/basic_string/get_allocator).
+		 *	@}
+		 */
 		allocator_type get_allocator() const {
 			return allocator;
 		}
 
-		//	at
-		//	http://en.cppreference.com/w/cpp/string/basic_string/at
-		//	WARNING: writing to the return directly may invalidate the rope
+		/**
+		 *	\name at
+		 *	@{
+		 *	\fn octet_reference utf8::rope::at(const size_type &pos)
+		 *	Returns a reference to the octet at specified location `pos`. Bounds checking is performed, exception of type `std::out_of_range` will be thrown on invalid access. Corresponds to [`std::basic_string::at`](http://en.cppreference.com/w/cpp/string/basic_string/at).
+		 *	\param		pos		Position of the octet to return.
+		 *	\return		A reference to the requested octet.
+	 	 *	\exception	out_of_range	Thrown if `pos >= size()`.
+		 *	\warning	Writing directly to the reference returned may invalidate the rope.
+		 */
 		octet_reference at(const size_type &pos) {
 			if (pos >= size_) {
 				throw std::out_of_range("rope::at");
@@ -990,6 +1001,13 @@ namespace utf8 {
 			return index_octet(root, pos);
 		}
 
+		/**
+		 *	\fn const_octet_reference utf8::rope::at(const size_type &pos) const
+		 *	Returns a `const` reference to the octet at specified location `pos`. Bounds checking is performed, exception of type `std::out_of_range` will be thrown on invalid access. Corresponds to [`std::basic_string::at`](http://en.cppreference.com/w/cpp/string/basic_string/at).
+		 *	\param		pos		Position of the octet to return.
+		 *	\return		A `const` reference to the requested octet.
+	 	 *	\exception	out_of_range	Thrown if `pos >= size()`.
+		 */
 		const_octet_reference at(const size_type &pos) const {
 			if (pos >= size_) {
 				throw std::out_of_range("rope::at");
@@ -997,12 +1015,22 @@ namespace utf8 {
 			return index_octet(root, pos);
 		}
 
+		/**
+		 *	\fn const_cp_reference utf8::rope::at_cp(const size_type &pos) const
+		 *	Returns a `const` reference to the codepoint at specified location `pos`. Bounds checking is performed, exception of type `std::out_of_range` will be thrown on invalid access. Corresponds to [`std::basic_string::at`](http://en.cppreference.com/w/cpp/string/basic_string/at).
+		 *	\param		pos		Position of the codepoint to return.
+		 *	\return		A `const` reference to the requested codepoint.
+	 	 *	\exception	out_of_range	Thrown if `pos >= size()`.
+		 *	@}
+		 */
 		const_cp_reference at_cp(const size_type &pos) const {
 			if (pos >= size_cp_) {
 				throw std::out_of_range("rope::at_cp");
 			}
 			return index_cp(root, pos);
 		}
+
+		//	also need cp_at, cp_at_cp?
 
 		//	operator[]
 		//	http://en.cppreference.com/w/cpp/string/basic_string/operator_at
@@ -1145,12 +1173,16 @@ namespace utf8 {
 		//	insert
 		//	http://en.cppreference.com/w/cpp/string/basic_string/insert
 
-		//	(1) count copies of octet at octet position index
+		//	(1) count copies of octet ch at octet position index
 		rope& insert(
 			size_type index,
 			size_type count,
 			OctetT ch
 		) {
+			if (count == 0) {
+				return *this;
+			}
+
 			OctetT *ptr = allocator.allocate(count);
 			for (size_t it = 0; it < count; ++it) {
 				*(ptr + it) = ch;
@@ -1161,31 +1193,75 @@ namespace utf8 {
 				throw std::out_of_range("rope::insert");
 			}
 
-			if (index == 0) {
-				if (size_ == 0) {
-					root = inserted;
-				}
-				else {
-					std::tie(root, size_, size_cp_) = insert_before_node(root, inserted);
-				}
-			}
-			else if (index == size()) {
-				std::tie(root, size_, size_cp_) = insert_after_node(root, inserted);
-			}
-			else {
-				std::shared_ptr<rope_node> left, right, tmp;
-				std::tie(left, right) = split_node_octet(root, index);
-				calc_weight(left);
-				calc_weight(right);
+			insert_node_octet(index, inserted);
 
-				std::tie(tmp, size_, size_cp_) = insert_after_node(left, inserted);
-				calc_weight(tmp);
-
-				std::tie(root, size_, size_cp_) = insert_after_node(tmp, right);
-			}
-
-			std::tie(size_, size_cp_) = calc_weight(root);
+			return *this;
 		}
+
+		//	(2) null-terminated octet string s at octet position index
+		template<typename GeneralT>
+		rope& insert(
+			size_type index,
+			GeneralT *s
+		) {
+			return insert(index, s, std::char_traits<GeneralT>::length(s));
+		}
+
+		//	(3) first count octets from the octet string s at octet position index
+		template<typename GeneralT>
+		rope& insert(
+			size_type index,
+			GeneralT *s,
+			size_type count
+		) {
+			if (count == 0) {
+				return *this;
+			}
+
+			OctetT *ptr = allocator.allocate(count);
+			for (size_t it = 0; it < count; ++it) {
+				*(ptr + it) = *(s + it);
+			}
+			std::shared_ptr<rope_node> inserted = make_leaf(ptr, count);
+
+			if (index > size()) {
+				throw std::out_of_range("rope::insert");
+			}
+
+			insert_node_octet(index, inserted);
+
+			return *this;
+		}
+
+		//	(4) string str at octet position index
+		template<typename GeneralT>
+		rope& insert(
+			size_type index,
+			const std::basic_string<GeneralT> &str
+		) {
+			size_t count = str.size();
+
+			if (count == 0) {
+				return *this;
+			}
+
+			typename std::add_const<GeneralT>::type *src = str.data();
+			OctetT *ptr = allocator.allocate(count);
+			for (size_t it = 0; it < count; ++it) {
+				*(ptr + it) = static_cast<OctetT>(*(src + it));
+			}
+			std::shared_ptr<rope_node> inserted = make_leaf(ptr, count);
+
+			if (index > size()) {
+				throw std::out_of_range("rope::insert");
+			}
+
+			insert_node_octet(index, inserted);
+
+			return *this;
+		}
+
+		//	(4) rope rp at octet position index
 
 	private:
 
@@ -1515,6 +1591,38 @@ namespace utf8 {
 		) {
 			return make_branch(node, what);
 		}
+
+		//	recalculates weights as well
+		void insert_node_octet(
+			size_type index,
+			const std::shared_ptr<rope_node> &what
+		) {
+			if (index == 0) {
+				if (size_ == 0) {
+					root = what;
+				}
+				else {
+					std::tie(root, size_, size_cp_) = insert_before_node(root, what);
+				}
+			}
+			else if (index == size()) {
+				std::tie(root, size_, size_cp_) = insert_after_node(root, what);
+			}
+			else {
+				std::shared_ptr<rope_node> left, right, tmp;
+				std::tie(left, right) = split_node_octet(root, index);
+				calc_weight(left);
+				calc_weight(right);
+
+				std::tie(tmp, size_, size_cp_) = insert_after_node(left, what);
+				calc_weight(tmp);
+
+				std::tie(root, size_, size_cp_) = insert_after_node(tmp, right);
+			}
+
+			std::tie(size_, size_cp_) = calc_weight(root);
+		}
+
 	};
 
 	//	template specializations for CodepointT

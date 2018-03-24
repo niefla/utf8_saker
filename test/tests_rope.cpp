@@ -298,7 +298,7 @@ TEST_SUITE("[back] back() works") {
 
 TEST_SUITE("[insert] insert() works") {
 
-	TEST_CASE("[insert0a] insert() taking (index = 0, count, ch) on an empty rope works") {
+	TEST_CASE("[insert1a] insert() taking (index = 0, count, ch) on an empty rope works") {
 		rope rp("");
 		rp.insert(0, 2, 'l');
 
@@ -307,7 +307,7 @@ TEST_SUITE("[insert] insert() works") {
 		REQUIRE(rp.at(1) == 'l');
 	}
 
-	TEST_CASE("[insert0b] insert() taking (index = 0, count, ch) on a non-empty rope works") {
+	TEST_CASE("[insert1b] insert() taking (index = 0, count, ch) on a non-empty rope works") {
 		rope rp("rdvark");
 		rp.insert(0, 2, 'a');
 
@@ -322,7 +322,7 @@ TEST_SUITE("[insert] insert() works") {
 		REQUIRE(rp.at(7) == 'k');
 	}
 
-	TEST_CASE("[insert0c] insert() taking (index = size(), count, ch) on a non-empty rope works") {
+	TEST_CASE("[insert1c] insert() taking (index = size(), count, ch) on a non-empty rope works") {
 		rope rp("b");
 		rp.insert(1, 2, 'e');
 
@@ -332,7 +332,7 @@ TEST_SUITE("[insert] insert() works") {
 		REQUIRE(rp.at(2) == 'e');
 	}
 
-	TEST_CASE("[insert0d] insert() taking (index > 0, count, ch) on a non-empty rope works") {
+	TEST_CASE("[insert1d] insert() taking (index > 0, count, ch) on a non-empty rope works") {
 		rope rp("heo");
 		rp.insert(2, 2, 'l');
 
@@ -342,6 +342,54 @@ TEST_SUITE("[insert] insert() works") {
 		REQUIRE(rp.at(2) == 'l');
 		REQUIRE(rp.at(3) == 'l');
 		REQUIRE(rp.at(4) == 'o');
+	}
+
+	TEST_CASE("[insert2d] insert() taking (index > 0, s) on a non-empty rope works") {
+		rope rp("unity");
+		rp.insert(3, "versi");
+
+		REQUIRE(rp.size() == 10);
+		REQUIRE(rp.at(0) == 'u');
+		REQUIRE(rp.at(1) == 'n');
+		REQUIRE(rp.at(2) == 'i');
+		REQUIRE(rp.at(3) == 'v');
+		REQUIRE(rp.at(4) == 'e');
+		REQUIRE(rp.at(5) == 'r');
+		REQUIRE(rp.at(6) == 's');
+		REQUIRE(rp.at(7) == 'i');
+		REQUIRE(rp.at(8) == 't');
+		REQUIRE(rp.at(9) == 'y');
+	}
+
+	TEST_CASE("[insert3d] insert() taking (index > 0, s, count) on a non-empty rope works") {
+		rope rp("france");
+		rp.insert(2, "agriculture", 3);
+
+		REQUIRE(rp.size() == 9);
+		REQUIRE(rp.at(0) == 'f');
+		REQUIRE(rp.at(1) == 'r');
+		REQUIRE(rp.at(2) == 'a');
+		REQUIRE(rp.at(3) == 'g');
+		REQUIRE(rp.at(4) == 'r');
+		REQUIRE(rp.at(5) == 'a');
+		REQUIRE(rp.at(6) == 'n');
+		REQUIRE(rp.at(7) == 'c');
+		REQUIRE(rp.at(8) == 'e');
+	}
+
+	TEST_CASE("[insert4d] insert() taking (index > 0, str) on a non-empty rope works") {
+		rope rp("cale");
+		rp.insert(2, std::string("rlis"));
+
+		REQUIRE(rp.size() == 8);
+		REQUIRE(rp.at(0) == 'c');
+		REQUIRE(rp.at(1) == 'a');
+		REQUIRE(rp.at(2) == 'r');
+		REQUIRE(rp.at(3) == 'l');
+		REQUIRE(rp.at(4) == 'i');
+		REQUIRE(rp.at(5) == 's');
+		REQUIRE(rp.at(6) == 'l');
+		REQUIRE(rp.at(7) == 'e');
 	}
 
 }
