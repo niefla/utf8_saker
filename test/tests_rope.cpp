@@ -43,8 +43,6 @@ TEST_SUITE("[ctor] constructor works") {
 		rope rp(4, static_cast<CodepointT>(0x9580), rope::mode::cp);
 
 		REQUIRE(rp.size_cp() == 4);
-		std::cout << "rp.at_cp(0): " << static_cast<int>(rp.at_cp(0)) << "\n";
-		std::cout << "0x9580: " << 0x9580 << "\n";
 		REQUIRE(rp.at_cp(0) == 0x9580);
 		REQUIRE(rp.at_cp(1) == 0x9580);
 		REQUIRE(rp.at_cp(2) == 0x9580);

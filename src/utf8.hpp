@@ -1016,14 +1016,14 @@ namespace utf8 {
 		}
 
 		/**
-		 *	\fn const_cp_reference utf8::rope::at_cp(const size_type &pos) const
-		 *	Returns a `const` reference to the codepoint at specified location `pos`. Bounds checking is performed, exception of type `std::out_of_range` will be thrown on invalid access. Corresponds to [`std::basic_string::at`](http://en.cppreference.com/w/cpp/string/basic_string/at).
+		 *	\fn CodepointT utf8::rope::at_cp(const size_type &pos) const
+		 *	Returns the codepoint at specified location `pos`. Bounds checking is performed, exception of type `std::out_of_range` will be thrown on invalid access. Corresponds to [`std::basic_string::at`](http://en.cppreference.com/w/cpp/string/basic_string/at).
 		 *	\param		pos		Position of the codepoint to return.
 		 *	\return		A `const` reference to the requested codepoint.
 	 	 *	\exception	out_of_range	Thrown if `pos >= size()`.
 		 *	@}
 		 */
-		const_cp_reference at_cp(const size_type &pos) const {
+		CodepointT at_cp(const size_type &pos) const {
 			if (pos >= size_cp_) {
 				throw std::out_of_range("rope::at_cp");
 			}
@@ -1056,7 +1056,7 @@ namespace utf8 {
 			return operator[](0);
 		}
 
-		const CodepointT& front_cp() const {
+		CodepointT front_cp() const {
 			return index_cp(root, 0);
 		}
 
@@ -1072,7 +1072,7 @@ namespace utf8 {
 			return operator[](size_- 1);
 		}
 
-		const CodepointT& back_cp() const {
+		CodepointT back_cp() const {
 			return index_cp(root, size_cp_ - 1);
 		}
 
@@ -1401,7 +1401,7 @@ namespace utf8 {
 			return std::make_pair(node, octet_pos);
 		}
 
-		const_cp_reference index_cp(
+		CodepointT index_cp(
 			std::shared_ptr<rope_node> node,
 			size_type pos
 		) const {
